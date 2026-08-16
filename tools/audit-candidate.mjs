@@ -8,7 +8,7 @@ const stablePath = path.resolve('stable/ReisWijzer.user.js');
 const manifestPath = path.resolve('reports/candidate-data-manifest.json');
 const stableHashPath = path.resolve('tests/stable.sha256');
 const source = fs.readFileSync(candidatePath, 'utf8');
-const stable = fs.readFileSync(stablePath);
+const stable = fs.readFileSync(stablePath, 'utf8').replace(/\r\n/g, '\n');
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 
 const metadataVersion = source.match(/^\/\/ @version\s+(\S+)/m)?.[1];
