@@ -181,3 +181,35 @@ test('profile summary and narrow-screen result layout stay compact', () => {
   assert.match(candidateSource, /Profiel & abonnementen[\s\S]*?rwProfileSummary\(s\)/);
   assert.match(candidateSource, /@media\(max-width:760px\)\{\.rw-route-head/);
 });
+
+test('only the selected journey receives a native-card detail fallback', () => {
+  assert.match(candidateSource, /function rwLoadSelectedJourneyViaNativeCard\(id\)/);
+  assert.match(candidateSource, /store\.domById\.get\(String\(id\)\)/);
+  assert.match(candidateSource, /card\.click\(\)/);
+  assert.match(candidateSource, /rwWaitForJourneyCache\(id,10000\)/);
+  assert.match(candidateSource, /await rwLoadSelectedJourneyViaNativeCard\(id\)/);
+  assert.doesNotMatch(candidateSource, /Promise\.all\([^)]*previews[^)]*rwLoadJourneyDirect/);
+});
+
+test('selected journey details are compact and collapsed by default', () => {
+  assert.match(candidateSource, /<details class="rw-journey-details"><summary>/);
+  assert.match(candidateSource, /Reisverloop en prijsopbouw/);
+  assert.match(candidateSource, /voertuigdelen<\/span><span>\$\{rwPricedFareGroups/);
+  assert.match(candidateSource, /Details bekijken \+/);
+  assert.doesNotMatch(candidateSource, /<details class="rw-journey-details" open/);
+});
+
+test('alternative journeys render as compact comparison rows', () => {
+  assert.match(candidateSource, /class="rw-result-btn rw-result-row/);
+  assert.match(candidateSource, /class="rw-result-time"/);
+  assert.match(candidateSource, /class="rw-result-summary"/);
+  assert.match(candidateSource, /class="rw-result-price"/);
+  assert.match(candidateSource, /grid-template-columns:minmax\(115px,auto\) minmax\(220px,1fr\) auto/);
+});
+
+test('result header converts the UTC request timestamp back to Dutch local time', () => {
+  assert.match(candidateSource, /function rwDutchRequestDateTime\(value\)/);
+  assert.match(candidateSource, /timeZone:'Europe\/Amsterdam'/);
+  assert.match(candidateSource, /hourCycle:'h23'/);
+  assert.doesNotMatch(candidateSource, /dt\.match\(\/T\(\\d\{2\}\):\(\\d\{2\}\)\//);
+});
