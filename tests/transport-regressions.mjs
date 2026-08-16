@@ -115,15 +115,11 @@ test('an explicit ReisWijzer journey choice outranks the stale native DOM select
   assert.match(candidateSource, /rwResetToPlannerHome\(\)[\s\S]*?rwExplicitJourneyId=''/);
 });
 
-test('duplicate fastest cheapest and calmest recommendations are grouped by journey id', () => {
-  const start = candidateSource.indexOf('function recommendationCards');
-  const end = candidateSource.indexOf('function journeyBadges', start);
-  const recommendationSource = candidateSource.slice(start, end);
-  assert.ok(start >= 0 && end > start);
-  assert.match(recommendationSource, /const grouped=new Map\(\)/);
-  assert.match(recommendationSource, /grouped\.get\(id\)\|\|\{journey,labels:\[\]\}/);
-  assert.match(recommendationSource, /x\.labels\.join\(' · '\)/);
-  assert.match(candidateSource, /\$\{recommendationCards\(picks,s,operators\)\}/);
+test('journey recommendations and alternatives use one selectable list', () => {
+  assert.doesNotMatch(candidateSource, /function recommendationCards/);
+  assert.doesNotMatch(candidateSource, /function pickCard/);
+  assert.match(candidateSource, /\$\{selectableJourneyList\(js,picks,s,operators\)\}/);
+  assert.match(candidateSource, /journeyBadges\(j,picks,s,operators\)/);
 });
 
 test('a new direct plan keeps its loading view until plans and journey are ready', () => {
@@ -160,4 +156,28 @@ test('candidate architecture has no shadowed function declarations or retired pl
   ]) {
     assert.doesNotMatch(candidateSource, new RegExp(`function\\s+${retiredName}\\s*\\(`));
   }
+});
+
+test('planner supports recent routes, favorites, editing and a reversed return journey', () => {
+  assert.match(candidateSource, /RW_RECENT_ROUTES_KEY='recentRoutes'/);
+  assert.match(candidateSource, /RW_FAVORITE_ROUTES_KEY='favoriteRoutes'/);
+  assert.match(candidateSource, /function rwRememberCurrentRoute\(\)/);
+  assert.match(candidateSource, /data-rw-stored-route=/);
+  assert.match(candidateSource, /data-rw-home>Wijzig reis/);
+  assert.match(candidateSource, /data-rw-return>Plan terugreis/);
+  assert.match(candidateSource, /rwApplyStoredRoute\(route,true\)/);
+});
+
+test('result explains partial prices and surfaces journey warnings', () => {
+  assert.match(candidateSource, /function rwJourneyWarnings\(journey\)/);
+  assert.match(candidateSource, /Krappe overstap van/);
+  assert.match(candidateSource, /rw-price-explain/);
+  assert.match(candidateSource, /ReisWijzer toont alleen het betrouwbare deel/);
+  assert.match(candidateSource, /rw-journey-warning/);
+});
+
+test('profile summary and narrow-screen result layout stay compact', () => {
+  assert.match(candidateSource, /function rwProfileSummary\(s\)/);
+  assert.match(candidateSource, /Profiel & abonnementen[\s\S]*?rwProfileSummary\(s\)/);
+  assert.match(candidateSource, /@media\(max-width:760px\)\{\.rw-route-head/);
 });
