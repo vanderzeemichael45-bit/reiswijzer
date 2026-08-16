@@ -144,3 +144,20 @@ test('profile presents one save action and groups secondary controls as advanced
   assert.match(profileSource, /⚙ Geavanceerd/);
   assert.match(profileSource, /Wijzigingen opslaan/);
 });
+
+test('candidate architecture has no shadowed function declarations or retired planner paths', () => {
+  const declarations = [...candidateSource.matchAll(/^\s*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm)]
+    .map(match => match[1]);
+  const duplicates = declarations.filter((name, index) => declarations.indexOf(name) !== index);
+  assert.deepEqual([...new Set(duplicates)], []);
+  for (const retiredName of [
+    'plannerState',
+    'segmentModel',
+    'segmentProgress',
+    'statusBadgeHtml',
+    'rwCloakNativePlanner',
+    'rwRenderOwnSuggestions'
+  ]) {
+    assert.doesNotMatch(candidateSource, new RegExp(`function\\s+${retiredName}\\s*\\(`));
+  }
+});
