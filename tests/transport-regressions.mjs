@@ -240,3 +240,26 @@ test('result header converts the UTC request timestamp back to Dutch local time'
   assert.match(candidateSource, /hourCycle:'h23'/);
   assert.doesNotMatch(candidateSource, /dt\.match\(\/T\(\\d\{2\}\):\(\\d\{2\}\)\//);
 });
+
+test('car comparison prefers exact 9292 coordinates and safe place geocoding', () => {
+  assert.match(candidateSource, /function rwCoordinatesFromLocation\(value\)/);
+  assert.match(candidateSource, /coordinates:rwCoordinatesFromLocation\(obj\.latLong/);
+  assert.match(candidateSource, /const direct=rwCoordinatesFromLocation\(location\?\.coordinates\|\|location\?\.latLong\)/);
+  assert.match(candidateSource, /if\(type==='woonplaats'\)n\+=25/);
+  assert.match(candidateSource, /type==='adres'\)n\+=addressLike\?15:-10/);
+  assert.match(candidateSource, /geocode\(fromLocation\),geocode\(toLocation\)/);
+});
+
+test('operator metadata is not rendered as a disruption warning', () => {
+  assert.match(candidateSource, /const informational=t=>/);
+  assert.match(candidateSource, /HTM\|RET\|GVB\|EBS\|Qbuzz/);
+  assert.match(candidateSource, /if\(!informational\(textOf\(v\)\)\)add\(v\)/);
+});
+
+test('document-start boot shield prevents native 9292 flashes', () => {
+  assert.match(candidateSource, /function rwInstallBootShield\(\)/);
+  assert.match(candidateSource, /body>\*:not\(#\$\{PANEL_ID\}\)\{visibility:hidden!important\}/);
+  assert.match(candidateSource, /classList\.remove\('rw-booting'\)/);
+  assert.match(candidateSource, /setTimeout\(\(\)=>document\.documentElement\?\.classList\.remove\('rw-booting'\),8000\)/);
+  assert.match(candidateSource, /setTimeout\(render,0\)/);
+});
