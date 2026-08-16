@@ -4,13 +4,22 @@ on:
   push:
     paths:
       - 'candidate/**'
+      - 'stable/**'
       - 'tests/**'
+      - 'tools/**'
+      - 'reports/**'
+      - 'data/**'
+      - 'feedback/**'
       - '.github/workflows/validate-candidate.yml'
   pull_request:
     paths:
       - 'candidate/**'
       - 'stable/**'
       - 'tests/**'
+      - 'tools/**'
+      - 'reports/**'
+      - 'data/**'
+      - 'feedback/**'
       - '.github/workflows/validate-candidate.yml'
 
 permissions:
@@ -18,13 +27,14 @@ permissions:
 
 jobs:
   protect-stable:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Block automatic stable changes
+        if: github.event_name == 'pull_request'
         run: |
           git fetch origin "${{ github.base_ref }}"
           if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -q '^stable/'; then
@@ -32,8 +42,17 @@ jobs:
             exit 1
           fi
 
+      - name: Detect direct stable changes
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: |
+          if git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep -q '^stable/'; then
+            echo 'stable/ changed in a direct push. Restore it or perform an explicitly approved promotion.'
+            exit 1
+          fi
+
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -43,23 +62,16 @@ jobs:
         run: test -s candidate/ReisWijzer.user.js
       - name: JavaScript syntax check
         run: node --check candidate/ReisWijzer.user.js
-      - name: Verify userscript metadata
-        shell: bash
-        run: |
-          grep -q '^// @name .*Candidate' candidate/ReisWijzer.user.js
-          grep -q '^// @version ' candidate/ReisWijzer.user.js
-          grep -q '^// @updateURL https://raw.githubusercontent.com/vanderzeemichael45-bit/reiswijzer/main/candidate/ReisWijzer.user.js' candidate/ReisWijzer.user.js
-          grep -q '^// @downloadURL https://raw.githubusercontent.com/vanderzeemichael45-bit/reiswijzer/main/candidate/ReisWijzer.user.js' candidate/ReisWijzer.user.js
-      - name: Guard fare safety invariant
-        run: grep -q 'unsafeSegmentSumming' candidate/ReisWijzer.user.js
-      - name: Run repository regression tests when present
+      - name: Audit metadata, data and safety invariants
+        run: node tools/audit-candidate.mjs
+      - name: Run repository regression tests
         shell: bash
         run: |
           shopt -s nullglob
           tests=(tests/*.mjs tests/*.js)
           if [ ${#tests[@]} -eq 0 ]; then
-            echo 'No repository tests yet; metadata and syntax checks completed.'
-            exit 0
+            echo 'Regression tests are required.'
+            exit 1
           fi
           for testfile in "${tests[@]}"; do
             echo "Running $testfile"
