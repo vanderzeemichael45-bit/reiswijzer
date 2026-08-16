@@ -198,3 +198,11 @@ test('selected journey details are compact and collapsed by default', () => {
   assert.match(candidateSource, /Details bekijken \+/);
   assert.doesNotMatch(candidateSource, /<details class="rw-journey-details" open/);
 });
+
+test('alternative journeys render as compact comparison rows', () => {
+  assert.match(candidateSource, /class="rw-result-btn rw-result-row/);
+  assert.match(candidateSource, /class="rw-result-time"/);
+  assert.match(candidateSource, /class="rw-result-summary"/);
+  assert.match(candidateSource, /class="rw-result-price"/);
+  assert.match(candidateSource, /grid-template-columns:minmax\(115px,auto\) minmax\(220px,1fr\) auto/);
+});
