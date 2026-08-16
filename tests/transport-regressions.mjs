@@ -107,3 +107,77 @@ test('resolved FareGroups can provide the hero total when native fareInfo is inc
   assert.equal(totals.unknown, 0);
   assert.equal(totals.complete, true);
 });
+
+test('an explicit ReisWijzer journey choice outranks the stale native DOM selection', () => {
+  assert.match(candidateSource, /let selectedId=rwExplicitJourneyId&&byId\.has\(rwExplicitJourneyId\)\?rwExplicitJourneyId:''/);
+  assert.match(candidateSource, /function rwNavigateToJourney\(journey\)[\s\S]*?rwExplicitJourneyId=id/);
+  assert.match(candidateSource, /if\(rwExplicitJourneyId&&!previewIds\.has\(rwExplicitJourneyId\)\)rwExplicitJourneyId=''/);
+  assert.match(candidateSource, /rwResetToPlannerHome\(\)[\s\S]*?rwExplicitJourneyId=''/);
+});
+
+test('journey recommendations and alternatives use one selectable list', () => {
+  assert.doesNotMatch(candidateSource, /function recommendationCards/);
+  assert.doesNotMatch(candidateSource, /function pickCard/);
+  assert.match(candidateSource, /\$\{selectableJourneyList\(js,picks,s,operators\)\}/);
+  assert.match(candidateSource, /journeyBadges\(j,picks,s,operators\)/);
+});
+
+test('a new direct plan keeps its loading view until plans and journey are ready', () => {
+  assert.match(candidateSource, /rwPlannerUiState\.directPlanning=true;\s*rwPlannerUiState\.forceHome=false/);
+  assert.match(candidateSource, /if\(first\?\.id\)await rwLoadJourneyDirect\(first\.id\);\s*rwPlannerUiState\.directPlanning=false;\s*renderBusy=false;\s*await render\(\)/);
+  assert.match(candidateSource, /if\(rwPlannerUiState\.directPlanning\)return;\s*renderBusy=true/);
+});
+
+test('profile presents one save action and groups secondary controls as advanced', () => {
+  const start = candidateSource.indexOf('function subscriptionForm');
+  const end = candidateSource.indexOf('function wireSettings', start);
+  const profileSource = candidateSource.slice(start, end);
+  assert.ok(start >= 0 && end > start);
+  assert.doesNotMatch(profileSource, /rwSaveTop/);
+  assert.doesNotMatch(profileSource, /Abonnementen & profiel/);
+  assert.equal((profileSource.match(/id="rwSave"/g) || []).length, 1);
+  assert.match(profileSource, /rw-advanced-profile/);
+  assert.match(profileSource, /⚙ Geavanceerd/);
+  assert.match(profileSource, /Wijzigingen opslaan/);
+});
+
+test('candidate architecture has no shadowed function declarations or retired planner paths', () => {
+  const declarations = [...candidateSource.matchAll(/^\s*(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm)]
+    .map(match => match[1]);
+  const duplicates = declarations.filter((name, index) => declarations.indexOf(name) !== index);
+  assert.deepEqual([...new Set(duplicates)], []);
+  for (const retiredName of [
+    'plannerState',
+    'segmentModel',
+    'segmentProgress',
+    'statusBadgeHtml',
+    'rwCloakNativePlanner',
+    'rwRenderOwnSuggestions'
+  ]) {
+    assert.doesNotMatch(candidateSource, new RegExp(`function\\s+${retiredName}\\s*\\(`));
+  }
+});
+
+test('planner supports recent routes, favorites, editing and a reversed return journey', () => {
+  assert.match(candidateSource, /RW_RECENT_ROUTES_KEY='recentRoutes'/);
+  assert.match(candidateSource, /RW_FAVORITE_ROUTES_KEY='favoriteRoutes'/);
+  assert.match(candidateSource, /function rwRememberCurrentRoute\(\)/);
+  assert.match(candidateSource, /data-rw-stored-route=/);
+  assert.match(candidateSource, /data-rw-home>Wijzig reis/);
+  assert.match(candidateSource, /data-rw-return>Plan terugreis/);
+  assert.match(candidateSource, /rwApplyStoredRoute\(route,true\)/);
+});
+
+test('result explains partial prices and surfaces journey warnings', () => {
+  assert.match(candidateSource, /function rwJourneyWarnings\(journey\)/);
+  assert.match(candidateSource, /Krappe overstap van/);
+  assert.match(candidateSource, /rw-price-explain/);
+  assert.match(candidateSource, /ReisWijzer toont alleen het betrouwbare deel/);
+  assert.match(candidateSource, /rw-journey-warning/);
+});
+
+test('profile summary and narrow-screen result layout stay compact', () => {
+  assert.match(candidateSource, /function rwProfileSummary\(s\)/);
+  assert.match(candidateSource, /Profiel & abonnementen[\s\S]*?rwProfileSummary\(s\)/);
+  assert.match(candidateSource, /@media\(max-width:760px\)\{\.rw-route-head/);
+});

@@ -1,46 +1,46 @@
 {
   "schemaVersion": 1,
-  "candidateVersion": "0.53.3",
+  "candidateVersion": "0.54.0",
   "generatedFrom": "candidate/ReisWijzer.user.js",
   "datasets": [
     {
       "name": "NS_HRN_2026",
-      "line": 1168,
+      "line": 1171,
       "bytes": 359674,
       "sha256": "e366da512811ff6cfef971f4e9b267392f67f2fce60a7e4a906cbfc434672d33",
       "validityWindows": []
     },
     {
       "name": "QBUZZ_FRL_CHB_2026",
-      "line": 1521,
+      "line": 1524,
       "bytes": 1041657,
       "sha256": "477bb7a1cc7409aa921f905ded27817ad49cc8c299e564f7df3a2bf309a73672",
       "validityWindows": []
     },
     {
       "name": "QBUZZ_ZHN_2026",
-      "line": 1522,
+      "line": 1525,
       "bytes": 817454,
       "sha256": "fa961246fa08b05f933fe400efacedca9885bdb64542b1c7dc0fad6763269596",
       "validityWindows": []
     },
     {
       "name": "QBUZZ_GD_2026",
-      "line": 1523,
+      "line": 1526,
       "bytes": 1975711,
       "sha256": "9634ab975cf8e91ec2bfe4145863673bceaebc600f9c6f3bfe5616c45d156280",
       "validityWindows": []
     },
     {
       "name": "QBUZZ_DMG_2026",
-      "line": 1524,
+      "line": 1527,
       "bytes": 267352,
       "sha256": "8b0187241aa4e48e1359aafcbd34fbb9fb617a3568fba2b4a23fd907659a8b2b",
       "validityWindows": []
     },
     {
       "name": "ARRIVA_BUS_2026",
-      "line": 1527,
+      "line": 1530,
       "bytes": 6980093,
       "sha256": "e6128be7f433f5a907ac1ce03f247ab01179ee38a6645521efcb3e49e39e3685",
       "validityWindows": [
@@ -100,7 +100,7 @@
     },
     {
       "name": "EBS_VPR_2026",
-      "line": 1529,
+      "line": 1532,
       "bytes": 125693,
       "sha256": "aa0b9c30665aad91d87c3d9eb0c32b89b7618afcf662a8e4bf96df482b5da5f1",
       "validityWindows": [
@@ -112,7 +112,7 @@
     },
     {
       "name": "EBS_HGL_2026",
-      "line": 1530,
+      "line": 1533,
       "bytes": 205535,
       "sha256": "c274289a019749899d30429de4cfeedeb8729ecd3db6fb24b18c3218f17a29fc",
       "validityWindows": [
@@ -124,7 +124,7 @@
     },
     {
       "name": "EBS_ZW_2026",
-      "line": 1531,
+      "line": 1534,
       "bytes": 440890,
       "sha256": "493de75669edf321ef7e8c8cffbd3e41d0f38c84cf3bcfdd15e4a8b5b4a88f70",
       "validityWindows": [
@@ -136,7 +136,7 @@
     },
     {
       "name": "EBS_IJV_2026",
-      "line": 1532,
+      "line": 1535,
       "bytes": 1140233,
       "sha256": "161a517a56e7ee8e6c93bbc9642060d33ca75139a5519ac22229618cefc2d341",
       "validityWindows": [
@@ -148,35 +148,35 @@
     },
     {
       "name": "CXX_2026",
-      "line": 1534,
+      "line": 1537,
       "bytes": 3712547,
       "sha256": "17d5a2ea5f9c90b3a41f4866891c48d7e46b0ba628d002e6e9aa845e3abbb0f7",
       "validityWindows": []
     },
     {
       "name": "KEOLIS_UTRECHT_2026",
-      "line": 1535,
+      "line": 1538,
       "bytes": 1121465,
       "sha256": "d073aa609044b7a2f3a091d73b7496bd9d650b02848bfb1eabc7d9d4ca09b3a1",
       "validityWindows": []
     },
     {
       "name": "HTM_2026",
-      "line": 1543,
+      "line": 1546,
       "bytes": 1775069,
       "sha256": "e82b1088a2e6bf610910951e4914c845b3498770ed780ec8f8187679d348502e",
       "validityWindows": []
     },
     {
       "name": "RET_2026",
-      "line": 1544,
+      "line": 1547,
       "bytes": 592953,
       "sha256": "845d02676c934eddf04c11b1eb5cfe183b83c38a92ef5144677e587372e7d4b9",
       "validityWindows": []
     },
     {
       "name": "GVB_2026_FARES",
-      "line": 1546,
+      "line": 1549,
       "bytes": 1020664,
       "sha256": "b901de486436ac90621d65805e0b1a3543435f3ca901023a147191a9b097e292",
       "validityWindows": []
