@@ -8,6 +8,13 @@ const { rwApiEndpointKey, rwComparablePlanUrl } = loadFunctions(
   { URL, location }
 );
 
+const { rwAmsterdamWallTimeIso } = loadFunctions(
+  ['rwTimeZoneOffsetMinutes', 'rwAmsterdamWallTimeIso'],
+  { Date, Intl, Object, Number, String }
+);
+
+const { segmentTotals } = loadFunctions(['segmentTotals'], { Math, Number });
+
 test('temporary validation headers are scoped to their API endpoint', () => {
   assert.equal(rwApiEndpointKey('https://web-api.9292.nl/api/v1/locations?query=Sneek'), '/api/v1/locations');
   assert.equal(rwApiEndpointKey('https://web-api.9292.nl/api/v1/plans?from=a&to=b'), '/api/v1/plans');
@@ -34,8 +41,9 @@ test('automatic diagnostics never operate the hidden native planner', () => {
   assert.match(diagnostics, /rwHealthRequestUrls\.add\(plansUrl\)/);
 });
 
-test('planner exposes explicit date and time picker controls', () => {
-  assert.match(candidateSource, /id="rwPlannerDatePicker"/);
+test('planner uses one native date picker and a time picker fallback', () => {
+  assert.doesNotMatch(candidateSource, /id="rwPlannerDatePicker"/);
+  assert.match(candidateSource, /id="rwPlannerDate" type="date" aria-label="Datum"/);
   assert.match(candidateSource, /id="rwPlannerTimePicker"/);
   assert.match(candidateSource, /showPicker/);
 });
@@ -61,4 +69,32 @@ test('native API bootstrap restores focus to the ReisWijzer location field', () 
   assert.match(candidateSource, /const active=document\.activeElement/);
   assert.match(candidateSource, /restoreVisibleFocus\(\)/);
   assert.match(candidateSource, /setSelectionRange\(selection\.start,selection\.end\)/);
+  assert.match(candidateSource, /input\.focus\?\.\(\{preventScroll:true\}\);\s*restoreVisibleFocus\(\);\s*const enc=/);
+});
+
+test('Dutch planner wall time is converted to UTC across summer and winter time', () => {
+  assert.equal(rwAmsterdamWallTimeIso('2026-09-05', '10:37'), '2026-09-05T08:37:00.000Z');
+  assert.equal(rwAmsterdamWallTimeIso('2026-01-05', '10:37'), '2026-01-05T09:37:00.000Z');
+  assert.equal(rwAmsterdamWallTimeIso('2026-09-05', '10:37', 90), '2026-09-05T10:07:00.000Z');
+});
+
+test('new trip keeps the planner home visible over stale native journey data', () => {
+  assert.match(candidateSource, /rwPlannerUiState\.forceHome=true/);
+  assert.match(candidateSource, /if\(rwPlannerUiState\.forceHome\|\|!js\.length\)/);
+  assert.match(candidateSource, /rwPlannerUiState\.forceHome=false;\s*rememberPlansJson/);
+});
+
+test('resolved FareGroups can provide the hero total when native fareInfo is incomplete', () => {
+  assert.match(candidateSource, /const detailedSegments=journeyReady\s*\? pricedSegmentsQuick\(s,picks\.selected\)\s*:\s*\[\]/);
+  assert.doesNotMatch(candidateSource, /journeyReady && rwOfficialJourneyFareInfo\(picks\.selected\)\s*\? pricedSegmentsQuick/);
+  const totals = segmentTotals([
+    { mode: 'Trein', fare: { value: 12.45, source: '9292 journey fareInfo' } },
+    { mode: 'Veerboot', fare: { value: 32.68, source: 'Rederij Doeksen tarieven personen 2026' } },
+    { mode: 'Veerboot', fare: { value: 11.31, source: 'Rederij Doeksen tarieven personen 2026' } }
+  ]);
+  assert.equal(totals.exact, 56.44);
+  assert.equal(totals.min, 56.44);
+  assert.equal(totals.max, 56.44);
+  assert.equal(totals.unknown, 0);
+  assert.equal(totals.complete, true);
 });
