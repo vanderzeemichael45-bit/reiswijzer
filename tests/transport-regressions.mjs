@@ -41,11 +41,20 @@ test('automatic diagnostics never operate the hidden native planner', () => {
   assert.match(diagnostics, /rwHealthRequestUrls\.add\(plansUrl\)/);
 });
 
-test('planner uses one native date picker and a time picker fallback', () => {
+test('planner opens the native calendar from the full date field', () => {
   assert.doesNotMatch(candidateSource, /id="rwPlannerDatePicker"/);
-  assert.match(candidateSource, /id="rwPlannerDate" type="date" aria-label="Datum"/);
+  assert.match(candidateSource, /data-rw-date-control><input id="rwPlannerDate" type="date" aria-label="Datum"/);
+  assert.match(candidateSource, /dateControl\?\.addEventListener\('click',\(\)=>openPicker\(ownDate\)\)/);
+  assert.match(candidateSource, /typeof input\.showPicker==='function'/);
+});
+
+test('planner has a browser-independent hour and minute picker', () => {
   assert.match(candidateSource, /id="rwPlannerTimePicker"/);
-  assert.match(candidateSource, /showPicker/);
+  assert.match(candidateSource, /id="rwPlannerTimePopover"/);
+  assert.match(candidateSource, /id="rwPlannerHour"/);
+  assert.match(candidateSource, /id="rwPlannerMinute"/);
+  assert.match(candidateSource, /id="rwPlannerTimeApply"/);
+  assert.match(candidateSource, /ownTime\.value=`\$\{hour\}:\$\{minute\}`;syncTime\(\)/);
 });
 
 test('profile save and header controls return to a compact planner state', () => {
