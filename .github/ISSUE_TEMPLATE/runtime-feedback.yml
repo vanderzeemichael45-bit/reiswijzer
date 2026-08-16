@@ -1,0 +1,46 @@
+name: ReisWijzer runtime feedback
+description: Gestructureerde feedback uit de Candidate tijdens testen.
+title: "[runtime] "
+labels:
+  - runtime-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gebruik dit formulier voor fouten uit ReisWijzer Candidate. Plak bij voorkeur de compacte diagnose uit de app.
+  - type: input
+    id: version
+    attributes:
+      label: Candidate-versie
+      placeholder: 0.51.x
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Ernst
+      options:
+        - Planner laadt niet
+        - Verkeerde reis/resultaten
+        - Prijs ontbreekt
+        - Prijs lijkt fout
+        - UI-probleem
+        - Overig
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Wat verwachtte je?
+  - type: textarea
+    id: actual
+    attributes:
+      label: Wat gebeurde er?
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Compacte diagnose
+      description: Geen cookies, API-sleutels of volledige validation tokens opnemen.
+      render: json
