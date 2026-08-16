@@ -206,3 +206,10 @@ test('alternative journeys render as compact comparison rows', () => {
   assert.match(candidateSource, /class="rw-result-price"/);
   assert.match(candidateSource, /grid-template-columns:minmax\(115px,auto\) minmax\(220px,1fr\) auto/);
 });
+
+test('result header converts the UTC request timestamp back to Dutch local time', () => {
+  assert.match(candidateSource, /function rwDutchRequestDateTime\(value\)/);
+  assert.match(candidateSource, /timeZone:'Europe\/Amsterdam'/);
+  assert.match(candidateSource, /hourCycle:'h23'/);
+  assert.doesNotMatch(candidateSource, /dt\.match\(\/T\(\\d\{2\}\):\(\\d\{2\}\)\//);
+});
