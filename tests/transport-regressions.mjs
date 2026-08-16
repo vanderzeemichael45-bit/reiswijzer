@@ -181,3 +181,12 @@ test('profile summary and narrow-screen result layout stay compact', () => {
   assert.match(candidateSource, /Profiel & abonnementen[\s\S]*?rwProfileSummary\(s\)/);
   assert.match(candidateSource, /@media\(max-width:760px\)\{\.rw-route-head/);
 });
+
+test('only the selected journey receives a native-card detail fallback', () => {
+  assert.match(candidateSource, /function rwLoadSelectedJourneyViaNativeCard\(id\)/);
+  assert.match(candidateSource, /store\.domById\.get\(String\(id\)\)/);
+  assert.match(candidateSource, /card\.click\(\)/);
+  assert.match(candidateSource, /rwWaitForJourneyCache\(id,10000\)/);
+  assert.match(candidateSource, /await rwLoadSelectedJourneyViaNativeCard\(id\)/);
+  assert.doesNotMatch(candidateSource, /Promise\.all\([^)]*previews[^)]*rwLoadJourneyDirect/);
+});
