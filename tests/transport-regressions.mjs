@@ -107,3 +107,40 @@ test('resolved FareGroups can provide the hero total when native fareInfo is inc
   assert.equal(totals.unknown, 0);
   assert.equal(totals.complete, true);
 });
+
+test('an explicit ReisWijzer journey choice outranks the stale native DOM selection', () => {
+  assert.match(candidateSource, /let selectedId=rwExplicitJourneyId&&byId\.has\(rwExplicitJourneyId\)\?rwExplicitJourneyId:''/);
+  assert.match(candidateSource, /function rwNavigateToJourney\(journey\)[\s\S]*?rwExplicitJourneyId=id/);
+  assert.match(candidateSource, /if\(rwExplicitJourneyId&&!previewIds\.has\(rwExplicitJourneyId\)\)rwExplicitJourneyId=''/);
+  assert.match(candidateSource, /rwResetToPlannerHome\(\)[\s\S]*?rwExplicitJourneyId=''/);
+});
+
+test('duplicate fastest cheapest and calmest recommendations are grouped by journey id', () => {
+  const start = candidateSource.indexOf('function recommendationCards');
+  const end = candidateSource.indexOf('function journeyBadges', start);
+  const recommendationSource = candidateSource.slice(start, end);
+  assert.ok(start >= 0 && end > start);
+  assert.match(recommendationSource, /const grouped=new Map\(\)/);
+  assert.match(recommendationSource, /grouped\.get\(id\)\|\|\{journey,labels:\[\]\}/);
+  assert.match(recommendationSource, /x\.labels\.join\(' · '\)/);
+  assert.match(candidateSource, /\$\{recommendationCards\(picks,s,operators\)\}/);
+});
+
+test('a new direct plan keeps its loading view until plans and journey are ready', () => {
+  assert.match(candidateSource, /rwPlannerUiState\.directPlanning=true;\s*rwPlannerUiState\.forceHome=false/);
+  assert.match(candidateSource, /if\(first\?\.id\)await rwLoadJourneyDirect\(first\.id\);\s*rwPlannerUiState\.directPlanning=false;\s*renderBusy=false;\s*await render\(\)/);
+  assert.match(candidateSource, /if\(rwPlannerUiState\.directPlanning\)return;\s*renderBusy=true/);
+});
+
+test('profile presents one save action and groups secondary controls as advanced', () => {
+  const start = candidateSource.indexOf('function subscriptionForm');
+  const end = candidateSource.indexOf('function wireSettings', start);
+  const profileSource = candidateSource.slice(start, end);
+  assert.ok(start >= 0 && end > start);
+  assert.doesNotMatch(profileSource, /rwSaveTop/);
+  assert.doesNotMatch(profileSource, /Abonnementen & profiel/);
+  assert.equal((profileSource.match(/id="rwSave"/g) || []).length, 1);
+  assert.match(profileSource, /rw-advanced-profile/);
+  assert.match(profileSource, /⚙ Geavanceerd/);
+  assert.match(profileSource, /Wijzigingen opslaan/);
+});
