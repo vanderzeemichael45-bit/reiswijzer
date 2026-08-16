@@ -45,3 +45,20 @@ test('profile save and header controls return to a compact planner state', () =>
   assert.match(candidateSource, /if\(d\?\.open\)\{rwResetToPlannerHome\(\);return;\}/);
   assert.match(candidateSource, /rw-native-diagnostics/);
 });
+
+test('result date metadata only reads a journey captured for the selected result', () => {
+  assert.doesNotMatch(candidateSource, /rwRawJourneyFor\(/);
+  assert.match(candidateSource, /const raw=rwJourneyReadyFor\(journey\)\?lastCapturedJourney:null/);
+});
+
+test('native planner fallback uses the visible 9292 date format and radio mode', () => {
+  assert.match(candidateSource, /padStart\(2,'0'\)\}-\$\{String\(dateTime\.getMonth\(\)\+1\)\.padStart\(2,'0'\)\}-\$\{dateTime\.getFullYear\(\)\}/);
+  assert.match(candidateSource, /querySelectorAll\('input\[type="radio"\]'\)/);
+  assert.match(candidateSource, /rwSelectNativeRequestMode\(requestType\)/);
+});
+
+test('native API bootstrap restores focus to the ReisWijzer location field', () => {
+  assert.match(candidateSource, /const active=document\.activeElement/);
+  assert.match(candidateSource, /restoreVisibleFocus\(\)/);
+  assert.match(candidateSource, /setSelectionRange\(selection\.start,selection\.end\)/);
+});
