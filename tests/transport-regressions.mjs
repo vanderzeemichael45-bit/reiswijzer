@@ -190,3 +190,11 @@ test('only the selected journey receives a native-card detail fallback', () => {
   assert.match(candidateSource, /await rwLoadSelectedJourneyViaNativeCard\(id\)/);
   assert.doesNotMatch(candidateSource, /Promise\.all\([^)]*previews[^)]*rwLoadJourneyDirect/);
 });
+
+test('selected journey details are compact and collapsed by default', () => {
+  assert.match(candidateSource, /<details class="rw-journey-details"><summary>/);
+  assert.match(candidateSource, /Reisverloop en prijsopbouw/);
+  assert.match(candidateSource, /voertuigdelen<\/span><span>\$\{rwPricedFareGroups/);
+  assert.match(candidateSource, /Details bekijken \+/);
+  assert.doesNotMatch(candidateSource, /<details class="rw-journey-details" open/);
+});
