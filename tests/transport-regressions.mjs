@@ -182,6 +182,18 @@ test('profile summary and narrow-screen result layout stay compact', () => {
   assert.match(candidateSource, /@media\(max-width:760px\)\{\.rw-route-head/);
 });
 
+test('planner keeps secondary information compact and optional', () => {
+  assert.match(candidateSource, /<details class="rw-health-strip/);
+  assert.match(candidateSource, /healthy\?'✓ Verbonden':title/);
+  assert.match(candidateSource, /<details class="rw-quick-panel"><summary>Opgeslagen reizen/);
+  assert.match(candidateSource, />Reisvoorkeuren<\/button>/);
+  assert.match(candidateSource, /id="rwPlannerStatus" class="rw-note"><\/div>/);
+  assert.match(candidateSource, /\.rw-note:empty\{display:none\}/);
+  assert.match(candidateSource, /<details class="rw-planner-moment"/);
+  assert.match(candidateSource, /id="rwPlannerMomentSummary"/);
+  assert.match(candidateSource, /updateMomentSummary/);
+});
+
 test('only the selected journey receives a native-card detail fallback', () => {
   assert.match(candidateSource, /function rwLoadSelectedJourneyViaNativeCard\(id\)/);
   assert.match(candidateSource, /store\.domById\.get\(String\(id\)\)/);
@@ -192,7 +204,7 @@ test('only the selected journey receives a native-card detail fallback', () => {
 });
 
 test('selected journey details are compact and collapsed by default', () => {
-  assert.match(candidateSource, /<details class="rw-journey-details"><summary>/);
+  assert.match(candidateSource, /<details class="rw-journey-details" \$\{rwOpenJourneyDetailsId===picks\.selected\.id\?'open':''\}><summary>/);
   assert.match(candidateSource, /Reisverloop en prijsopbouw/);
   assert.match(candidateSource, /voertuigdelen<\/span><span>\$\{rwPricedFareGroups/);
   assert.match(candidateSource, /Details bekijken \+/);
@@ -205,6 +217,21 @@ test('alternative journeys render as compact comparison rows', () => {
   assert.match(candidateSource, /class="rw-result-summary"/);
   assert.match(candidateSource, /class="rw-result-price"/);
   assert.match(candidateSource, /grid-template-columns:minmax\(115px,auto\) minmax\(220px,1fr\) auto/);
+});
+
+test('alternative journey list initially shows at most four rows', () => {
+  assert.match(candidateSource, /const selectedFirst=\[\.\.\.sorted\]\.sort/);
+  assert.match(candidateSource, /const visible=selectedFirst\.slice\(0,4\)/);
+  assert.match(candidateSource, /const additional=selectedFirst\.slice\(4\)/);
+  assert.match(candidateSource, /<details class="rw-additional-journeys">/);
+  assert.match(candidateSource, /Toon nog \$\{additional\.length\}/);
+});
+
+test('selecting an alternative opens and scrolls to its loaded details', () => {
+  assert.match(candidateSource, /rwOpenJourneyDetailsId=id/);
+  assert.match(candidateSource, /rwOpenJourneyDetailsId===picks\.selected\.id\?'open':''/);
+  assert.match(candidateSource, /journeyReady&&rwOpenJourneyDetailsId===picks\.selected\.id/);
+  assert.match(candidateSource, /journeyDetails\?\.scrollIntoView\(\{behavior:'smooth',block:'start'\}\)/);
 });
 
 test('result header converts the UTC request timestamp back to Dutch local time', () => {
